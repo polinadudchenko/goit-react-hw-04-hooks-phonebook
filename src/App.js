@@ -1,52 +1,21 @@
-import { useEffect, useState} from 'react';
+import { useState} from 'react';
 import { v1 as uuidv1 } from 'uuid';
 import s from './App.module.css';
-import { getDataFromLocalStorage } from './utils/helpers-local-storage'
-import { writeDataToLocalStorage } from './utils/helpers-local-storage'
+import { useLocalStorage } from './utils/hooks/useLocalStorage';
 import ContactForm from './components/ContactForm';
 import ContactList from './components/ContactList';
 import Filter from './components/Filter'
 import Section from './components/Section'
 
-const useLocalStorage = (key, defaultValue) => {
-  const [state, setState] = useState(() => {
-    return getDataFromLocalStorage(key) ?? defaultValue
-  })
-
-  useEffect(() => {
-    writeDataToLocalStorage(key, state)
-  }, [key, state])
-
-  return [state, setState]
-}
-
 export default function App() {
-  const [name, setName] = useLocalStorage('name', '');
-  const [name, setName] = useLocalStorage('name', '');
+  const [contacts, setContacts] = useLocalStorage('contacts', {});
   const [filter, setFilter] = useState('');
-  
-  /* const componentDidMount() {
-    const parsedContacts = getDataFromLocalStorage('contacts');
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-  }
-
-  const componentDidUpdate(prevProps, prevState) {
-    const { contacts } = this.state;
-    if (contacts !== prevState.contacts) {
-      writeDataToLocalStorage('contacts', this.state.contacts);
-    }
-    
-  } */
 
   const onHandlerSubmit = (name, number) => {
     if (contacts.find(contact => contact.name.toLowerCase() === name.toLowerCase())) {
       return alert('This contact already in the addressbook')
     }
-    setContacts((contacts) => ({
-        contacts: [...contacts, { id: uuidv1(), name, number}]
-        }))
+    setContacts((contacts) => ([...contacts, { id: uuidv1(), name, number}]))
   }
 
   const handleFilter = (e) => {
@@ -54,19 +23,17 @@ export default function App() {
   }
 
   const filterContacts = () => {
-    const filteredContacts = contacts.filter(contact => contact.name.toLowerCase().includes(filter.toLowerCase()))
+    const filteredContacts = contacts.filter(contact => (contact.name.toLowerCase().includes(filter.toLowerCase())))
     return filteredContacts;
   }
 
   const deleteContact = (contactId) => {
-    setContacts(contacts => ({
-      contacts: contacts.filter(contact => contact.id !== contactId)
-    }))
+    setContacts(contacts => (contacts.filter(contact => contact.id !== contactId)))
   }
 
-  const handleAlert = () => {
+  /* const handleAlert = () => {
     alert('No matches is found')
-  }
+  } */
 
   return (
       <div className={s.App}>
@@ -77,9 +44,14 @@ export default function App() {
         </Section>
        
         <Section title="Your contacts">
+          {!(filterContacts().length === 0)
+            ?
+            <>
             <Filter onHandleFilter={handleFilter} />
-            {!(filterContacts().length === 0)
-            && <ContactList contacts={filter ? filterContacts() : contacts} onDeleteContact={ deleteContact}/>
+            <ContactList contacts={filter ? filterContacts() : contacts} onDeleteContact={deleteContact} />
+            </>
+            :
+            <p>You don't have any contacts yet, please add one to the form on the left</p>
             }
           </Section>
         </div>

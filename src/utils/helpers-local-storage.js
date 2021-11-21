@@ -11,7 +11,7 @@ export const getDataFromLocalStorage = (key) => {
 
 export const writeDataToLocalStorage = (key, value) => {
     try {
-        localStorage.setItem(key, JSON.stringify(value));
+        window.localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
         throw new Error(error)
     }
