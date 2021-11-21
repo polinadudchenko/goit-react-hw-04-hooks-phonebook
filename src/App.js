@@ -25,15 +25,14 @@ export default function App() {
   const handleFilter = (e) => {
     setFilter(e.currentTarget.value)
   }
-
-  useEffect(() => { filterContacts().length === 0 && toast.error('No matches are found') }, [filter])
   
-
   const filterContacts = () => {
     const filteredContacts = contacts.filter(contact => (contact.name.toLowerCase().includes(filter.toLowerCase())))
     return filteredContacts;
   }
-
+  
+  useEffect(() => { (filterContacts().length === 0 && contacts.length) && toast.error('No matches are found') }, [filter])
+  
   const deleteContact = (contactId) => {
     setContacts(contacts => (contacts.filter(contact => contact.id !== contactId)))
   }
