@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { v1 as uuidv1 } from 'uuid';
 import { ToastContainer, toast } from 'react-toastify';
+import debounce from 'lodash.debounce';
 import 'react-toastify/dist/ReactToastify.css';
 import s from './App.module.css';
 import { useLocalStorage } from './utils/hooks/useLocalStorage';
@@ -9,7 +10,6 @@ import ContactList from './components/ContactList';
 import Filter from './components/Filter'
 import Section from './components/Section'
 
-var debounce = require('lodash.debounce');
 
 export default function App() {
   const [contacts, setContacts] = useLocalStorage('contacts', {});
@@ -31,11 +31,19 @@ export default function App() {
     return filteredContacts;
   }
   
-  useEffect(() => { (filterContacts().length === 0 && contacts.length) && toast.error('No matches are found') }, [filter])
+  useEffect(() => {
+    (filterContacts().length === 0 && contacts.length) && debouncedFilterAlert()
+    return () => {
+      debouncedFilterAlert.cancel();
+    }
+  }, [filter])
   
   const deleteContact = (contactId) => {
     setContacts(contacts => (contacts.filter(contact => contact.id !== contactId)))
   }
+
+  const debouncedFilterAlert = useMemo(
+    () => debounce(() => toast.error('No matches are found'), 700),[]);
 
   return (
       <div className={s.App}>
@@ -58,7 +66,7 @@ export default function App() {
             </>
           }
         </Section>
-        <ToastContainer />
+        <ToastContainer autoClose='3000'/>
         </div>
     </div>
   )
