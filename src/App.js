@@ -12,7 +12,7 @@ import Section from './components/Section'
 
 
 export default function App() {
-  const [contacts, setContacts] = useLocalStorage('contacts', {});
+  const [contacts, setContacts] = useLocalStorage('contacts', []);
   const [filter, setFilter] = useState('');
 
   const onHandlerSubmit = (name, number) => {
@@ -66,7 +66,7 @@ export default function App() {
             </>
           }
         </Section>
-        <ToastContainer autoClose='3000'/>
+        <ToastContainer autoClose={3000}/>
         </div>
     </div>
   )
